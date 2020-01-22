@@ -78,17 +78,13 @@ class Command {
 
     static void show(Scanner input, String option) {
         if (option.matches("[0-9]+")) {
-            if (!Todo.showItem(option)) {
-                System.out.println("unidentified id");
-            }
+            Todo.showItem(option);
         }
         else if (option.equals("default")) {
             System.out.println("Enter id");
             String td_num = input.nextLine();
             if (td_num.matches("[0-9]+")) {
-                if (!Todo.showItem(td_num)) {
-                    System.out.println("unidentified id");
-                }
+                Todo.showItem(td_num);
             }
             else {
                 System.out.println("Wrong id");

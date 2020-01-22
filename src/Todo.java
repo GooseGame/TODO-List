@@ -28,23 +28,26 @@ class Todo {
                     switch (state) {
                         case 0: System.out.println("Status: in progress"); break;
                         case 1: System.out.println("Status: done"); break;
-                        case 2: System.out.println("Status: cancelled"); break;
+                        case 2: System.out.println("Status: canceled"); break;
                     }
                     System.out.println("---------------------");
                 }
                 else {
                     System.out.println("Looks like you don't have any items with this id.\nYou can create it.");
+                    rs.close();
+                    statement.close();
+                    c.close();
+                    throw new SQLException();
                 }
             rs.close();
             statement.close();
             c.close();
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }
-    static void showItems(String option) {
+    static boolean showItems(String option) {
         Statement statement;
         try {
             Connection c = DriverManager.getConnection(Data.url);
@@ -69,7 +72,7 @@ class Todo {
                 }
                 default: {
                     System.out.println("Wrong order type.\nUse help command to check documentation");
-                    break;
+                    throw new SQLException();
                 }
             }
             int count = 0;
@@ -89,14 +92,19 @@ class Todo {
                 }
                 if (count==0) {
                     System.out.println("there are no items on your order");
+                    rs.close();
+                    statement.close();
+                    c.close();
+                    throw new SQLException();
                 }
                 rs.close();
             }
 
             statement.close();
             c.close();
+            return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
     }
     static boolean clear(String option) {
@@ -117,7 +125,7 @@ class Todo {
                 }
                 case "canceled": {
                     statement.executeUpdate(SQLResponse.clearOrdered(2));
-                    System.out.println("cancelled items deleted successfully");
+                    System.out.println("canceled items deleted successfully");
                     break;
                 }
                 case "default": {
@@ -127,7 +135,9 @@ class Todo {
                 }
                 default: {
                     System.out.println("Wrong order type.\nUse help command to check documentation");
-                    break;
+                    statement.close();
+                    c.close();
+                    throw new SQLException();
                 }
             }
             statement.close();
@@ -150,20 +160,24 @@ class Todo {
             return false;
         }
     }
-    static void setState(String td_num, int state) {
+    static boolean setState(String td_num, int state) {
         Statement statement;
         try {
+            if ((state < 0) || (state > 2)) {
+                throw new SQLException();
+            }
             Connection c = DriverManager.getConnection(Data.url);
             statement = c.createStatement();
             statement.executeUpdate(SQLResponse.setState(td_num, state));
             statement.close();
             c.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
         System.out.println("State updated");
+        return true;
     }
-    static void updateDescription(String option, String description, String td_num) {
+    static boolean updateDescription(String option, String description, String td_num) {
         Statement statement;
         try {
             Connection c = DriverManager.getConnection(Data.url);
@@ -184,13 +198,16 @@ class Todo {
                 }
                 default: {
                     System.out.println("Wrong order type.\nUse help command to check documentation");
-                    break;
+                    statement.close();
+                    c.close();
+                    throw new SQLException();
                 }
             }
             statement.close();
             c.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
+        return true;
     }
 }
